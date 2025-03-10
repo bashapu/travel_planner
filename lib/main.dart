@@ -38,6 +38,13 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
     });
   }
 
+  void markAsCompleted(Plan plan) {
+    setState(() {
+      plan.status = 'completed';
+    });
+  }
+
+  // Open the 'Create Plan' modal
   void openCreatePlanModal() {
     showDialog(
       context: context,
@@ -45,7 +52,7 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
         return CreatePlanModal(
           onSave: (plan) {
             addPlan(plan);
-            Navigator.pop(context);
+            Navigator.pop(context); // Close modal
           },
         );
       },
@@ -65,9 +72,23 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
                 itemCount: plans.length,
                 itemBuilder: (context, index) {
                   final plan = plans[index];
-                  return ListTile(
-                    title: Text(plan.name),
-                    subtitle: Text(plan.description),
+                  return Dismissible(
+                    key: Key(plan.name),
+                    onDismissed: (direction) {
+                      removePlan(plan);
+                    },
+                    background: Container(color: Colors.red),
+                    child: Card(
+                      color: plan.status == 'completed' ? Colors.green[100] : Colors.white,
+                      child: ListTile(
+                        title: Text(plan.name),
+                        subtitle: Text(plan.description),
+                        trailing: IconButton(
+                          icon: Icon(Icons.check_circle),
+                          onPressed: () => markAsCompleted(plan),
+                        ),
+                      ),
+                    ),
                   );
                 },
               ),
