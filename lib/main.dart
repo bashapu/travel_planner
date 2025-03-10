@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'models/plan.dart';
 
 void main() {
   runApp(MyApp());
@@ -23,6 +24,20 @@ class PlanManagerScreen extends StatefulWidget {
 }
 
 class _PlanManagerScreenState extends State<PlanManagerScreen> {
+  List<Plan> plans = [];
+
+  void addPlan(Plan newPlan) {
+    setState(() {
+      plans.add(newPlan);
+    });
+  }
+
+  void removePlan(Plan plan) {
+    setState(() {
+      plans.remove(plan);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +45,7 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
         title: Text("Plan Manager"),
       ),
       body: Center(
-        child: Text('Plan List Goes Here'),
+        child: Text('You have ${plans.length} plans.'),
       ),
     );
   }
