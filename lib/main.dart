@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Travel Plans',
+      title: 'Adoption & Travel Plans',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -58,7 +58,6 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
     );
   }
 
-  // Open the 'Edit Plan' modal
   void openEditPlanModal(Plan plan) {
     showDialog(
       context: context,
@@ -71,7 +70,7 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
                 plans[index] = editedPlan;
               }
             });
-            Navigator.pop(context); // Close modal
+            Navigator.pop(context);
           },
           initialPlan: plan,
         );
@@ -101,6 +100,9 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
                     child: GestureDetector(
                       onLongPress: () {
                         openEditPlanModal(plan);
+                      },
+                      onDoubleTap: () {
+                        removePlan(plan);
                       },
                       child: Card(
                         color: plan.status == 'completed' ? Colors.green[100] : Colors.white,
