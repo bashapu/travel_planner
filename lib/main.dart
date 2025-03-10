@@ -44,7 +44,6 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
     });
   }
 
-  // Open the 'Create Plan' modal
   void openCreatePlanModal() {
     showDialog(
       context: context,
@@ -52,8 +51,29 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
         return CreatePlanModal(
           onSave: (plan) {
             addPlan(plan);
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
+  }
+
+  // Open the 'Edit Plan' modal
+  void openEditPlanModal(Plan plan) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return CreatePlanModal(
+          onSave: (editedPlan) {
+            setState(() {
+              int index = plans.indexOf(plan);
+              if (index != -1) {
+                plans[index] = editedPlan;
+              }
+            });
             Navigator.pop(context); // Close modal
           },
+          initialPlan: plan,
         );
       },
     );
@@ -78,14 +98,19 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
                       removePlan(plan);
                     },
                     background: Container(color: Colors.red),
-                    child: Card(
-                      color: plan.status == 'completed' ? Colors.green[100] : Colors.white,
-                      child: ListTile(
-                        title: Text(plan.name),
-                        subtitle: Text(plan.description),
-                        trailing: IconButton(
-                          icon: Icon(Icons.check_circle),
-                          onPressed: () => markAsCompleted(plan),
+                    child: GestureDetector(
+                      onLongPress: () {
+                        openEditPlanModal(plan);
+                      },
+                      child: Card(
+                        color: plan.status == 'completed' ? Colors.green[100] : Colors.white,
+                        child: ListTile(
+                          title: Text(plan.name),
+                          subtitle: Text(plan.description),
+                          trailing: IconButton(
+                            icon: Icon(Icons.check_circle),
+                            onPressed: () => markAsCompleted(plan),
+                          ),
                         ),
                       ),
                     ),
@@ -104,8 +129,9 @@ class _PlanManagerScreenState extends State<PlanManagerScreen> {
 
 class CreatePlanModal extends StatefulWidget {
   final Function(Plan) onSave;
+  final Plan? initialPlan;
 
-  CreatePlanModal({required this.onSave});
+  CreatePlanModal({required this.onSave, this.initialPlan});
 
   @override
   _CreatePlanModalState createState() => _CreatePlanModalState();
@@ -118,9 +144,20 @@ class _CreatePlanModalState extends State<CreatePlanModal> {
   DateTime _date = DateTime.now();
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.initialPlan != null) {
+      _nameController.text = widget.initialPlan!.name;
+      _descriptionController.text = widget.initialPlan!.description;
+      _priority = widget.initialPlan!.priority;
+      _date = widget.initialPlan!.date;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Create New Plan'),
+      title: Text(widget.initialPlan == null ? 'Create New Plan' : 'Edit Plan'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -152,15 +189,15 @@ class _CreatePlanModalState extends State<CreatePlanModal> {
           ),
           ElevatedButton(
             onPressed: () {
-              final newPlan = Plan(
+              final editedPlan = Plan(
                 name: _nameController.text,
                 description: _descriptionController.text,
                 date: _date,
                 priority: _priority,
               );
-              widget.onSave(newPlan);
+              widget.onSave(editedPlan);
             },
-            child: Text('Save Plan'),
+            child: Text(widget.initialPlan == null ? 'Save Plan' : 'Save Changes'),
           ),
         ],
       ),
